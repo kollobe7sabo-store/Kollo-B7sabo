@@ -35,7 +35,9 @@ function setupStore() {
   $("logoImg").alt = STORE.name;
   $("cityName").textContent = STORE.city;
   $("workingHours").textContent = STORE.workingHours;
-  document.title = `${STORE.name} - ملابس وكشاكيل وعطور ومذكرات وشنط | ${STORE.city}`;
+  document.title = STORE.comingSoon
+    ? `قريباً | ${STORE.name}`
+    : `${STORE.name} - ملابس وكشاكيل وعطور ومذكرات وشنط | ${STORE.city}`;
 
   const link = `https://wa.me/${STORE.whatsapp}`;
   $("floatWhats").href = link;

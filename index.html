@@ -15,6 +15,16 @@
 </head>
 <body>
 
+  <!-- صفحة "قريباً": بتظهر بس لما STORE.comingSoon = true في products.js -->
+  <main class="soon">
+    <h1 class="sr-only">كله بحسابو - قريباً</h1>
+    <img class="soon-corner" src="images/soon-corner.jpg" alt="" width="600" height="559">
+    <img class="soon-text" src="images/soon-text.png" alt="قريباً - Coming Soon" width="1000" height="746">
+  </main>
+
+  <script src="products.js"></script>
+  <script>if (typeof STORE !== "undefined" && STORE.comingSoon) document.documentElement.classList.add("coming-soon");</script>
+
   <header class="header">
     <div class="container header-inner">
       <a href="#top" class="logo" aria-label="كله بحسابو"><img src="images/logo.png" alt="كله بحسابو - Kollo" id="logoImg" width="123" height="42"></a>
@@ -173,7 +183,6 @@
     </div>
   </div>
 
-  <script src="products.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
