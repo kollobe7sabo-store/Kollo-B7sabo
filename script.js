@@ -266,9 +266,71 @@ function cardHTML(p, badge) {
     </article>`;
 }
 
+const SEARCH_CATEGORY_TERMS = {
+  perfumes: "عطر عطور عطري عطرية برفان برفانات perfume perfumes fragrance fragrances",
+  cleaning: "منظف منظفات تنظيف غسيل غسل مطهر مطهرات مزيل بقع صحون أطباق سجاد دهون منظفات منزلية",
+  beauty: "عناية جمال بشرة جلد شعر جسم شفايف ترطيب مرطب غسول مكياج"
+};
+const SEARCH_STOP_WORDS = new Set(["عايز", "عايزه", "عاوزه", "حاجه", "منتج", "منتجات", "محتاج", "محتاجه", "من", "في", "عن", "بتاع", "بتاعه"]);
+
+function normalizeSearchText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
+    .replace(/[أإآٱ]/g, "ا")
+    .replace(/ؤ/g, "و")
+    .replace(/ئ/g, "ي")
+    .replace(/ى/g, "ي")
+    .replace(/ة/g, "ه")
+    .replace(/[^a-z0-9\u0600-\u06FF]+/g, " ")
+    .trim();
+}
+
+function searchTokenMatches(token, text) {
+  const query = token.replace(/^ال(?=.{3,}$)/, "");
+  return text.split(" ").some((word) => {
+    const candidate = word.replace(/^ال(?=.{3,}$)/, "");
+    return candidate === query ||
+      (Math.min(candidate.length, query.length) >= 3 &&
+        (candidate.includes(query) || query.includes(candidate)));
+  });
+}
+
+function productSearchScore(product, tokens, query) {
+  const category = CATEGORIES.find((item) => item.id === product.category);
+  const fields = [
+    { text: normalizeSearchText(product.name), weight: 8 },
+    { text: normalizeSearchText(product.desc), weight: 5 },
+    { text: normalizeSearchText(product.details), weight: 4 },
+    { text: normalizeSearchText(Array.isArray(product.features) ? product.features.join(" ") : ""), weight: 4 },
+    { text: normalizeSearchText(Array.isArray(product.specs) ? product.specs.reduce((all, spec) => all.concat(spec), []).join(" ") : ""), weight: 2 },
+    { text: normalizeSearchText(`${category ? category.name : ""} ${SEARCH_CATEGORY_TERMS[product.category] || ""}`), weight: 6 },
+    { text: normalizeSearchText(brandOf(product)), weight: 2 }
+  ];
+  let matchedTokens = 0;
+  let score = 0;
+
+  tokens.forEach((token) => {
+    const bestMatch = fields.reduce(
+      (best, field) => searchTokenMatches(token, field.text) ? Math.max(best, field.weight) : best,
+      0
+    );
+    if (bestMatch) {
+      matchedTokens += 1;
+      score += bestMatch;
+    }
+  });
+
+  const normalizedQuery = normalizeSearchText(query);
+  if (normalizedQuery && fields.some((field) => field.text.includes(normalizedQuery))) score += 3;
+  return { matchedTokens, score };
+}
+
 function renderProducts() {
-  const term = searchTerm.trim().toLowerCase();
-  const searching = !!term;
+  const term = normalizeSearchText(searchTerm);
+  const tokens = term.split(" ").filter((token) => token.length > 1 && !SEARCH_STOP_WORDS.has(token));
+  const searching = !!searchTerm.trim();
   const home = view.type === "home" && !searching;
   $("homeView").hidden = !home;
   $("listView").hidden = home;
@@ -286,7 +348,13 @@ function renderProducts() {
   const byIds = (ids) => ids.map((id) => list.find((p) => p.id === id)).filter(Boolean);
 
   if (searching) {
-    list = list.filter((p) => p.name.toLowerCase().includes(term) || p.desc.toLowerCase().includes(term));
+    const ranked = list
+      .map((product, index) => ({ product, index, ...productSearchScore(product, tokens, term) }))
+      .filter((result) => result.matchedTokens > 0)
+      .sort((a, b) => b.matchedTokens - a.matchedTokens || b.score - a.score || a.index - b.index);
+    const exactCoverage = ranked.filter((result) => result.matchedTokens === tokens.length);
+    list = (exactCoverage.length ? exactCoverage : ranked)
+      .map((result) => result.product);
     title = `نتائج البحث: ${searchTerm.trim()}`;
     empty = "مفيش منتجات مطابقة للبحث.";
   } else if (view.type === "cat") {
@@ -419,12 +487,20 @@ function normalizeCode(s) {
     .toUpperCase();
 }
 
+function hasDiscountedCartItem() {
+  return cart.some(({ id }) => {
+    const p = PRODUCTS.find((x) => x.id === id);
+    return p && (p._offer || Number(p.oldPrice) > p.price);
+  });
+}
+
 function checkCoupon(input) {
   const code = normalizeCode(input);
   if (!code) return { error: "اكتب كود الخصم الأول" };
   const c = COUPON_LIST.find((x) => x.active !== false && normalizeCode(x.code) === code);
   if (!c) return { error: "الكود ده مش صحيح" };
   if (c.expires && new Date() > new Date(c.expires + "T23:59:59")) return { error: "الكود ده انتهت صلاحيته" };
+  if (hasDiscountedCartItem()) return { error: "لا يمكن تطبيق الخصم لوجود عرض على المنتج بالفعل" };
   return { coupon: c };
 }
 
@@ -666,6 +742,12 @@ function getTotals() {
 }
 
 function renderCart() {
+  if (appliedCoupon && hasDiscountedCartItem()) {
+    appliedCoupon = null;
+    saveCoupon();
+    showCouponMsg("لا يمكن تطبيق الخصم لوجود عرض على المنتج بالفعل", "err");
+  }
+
   const count = cart.reduce((s, i) => s + i.qty, 0);
   $("cartCount").textContent = count;
 

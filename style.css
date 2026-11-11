@@ -392,7 +392,7 @@ h1, h2, h3 { font-weight: 700; }
 
 /* ---- الهيرو: صورة أسيوط شفافة على الأخضر الغامق ---- */
 .hero { position: relative; min-height: 100vh; min-height: 100svh; display: grid; place-items: center; text-align: center; color: #fff; background: var(--primary); overflow: hidden; padding: 96px 0 90px; }
-.hero::before { content: ""; position: absolute; inset: -4px; background: url("images/assuit.png") center / cover no-repeat; opacity: .42; filter: blur(1.2px) saturate(.9); }
+.hero::before { content: ""; position: absolute; inset: -4px; background: url("images/assuitchatgpt.png")  center / cover no-repeat; opacity: .42; filter: blur(1.2px) saturate(.9); }
 .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(38,53,47,.42) 0%, rgba(38,53,47,.84) 100%); }
 .hero-inner { position: relative; z-index: 1; max-width: 820px; }
 .hero-title { font-size: clamp(2.1rem, 7.4vw, 4.4rem); line-height: 1.35; font-weight: 700; letter-spacing: -.2px; text-wrap: balance; }
