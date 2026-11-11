@@ -4,8 +4,35 @@
 
 const $ = (id) => document.getElementById(id);
 const money = (n) => `${n.toLocaleString("en-US")} ج`;
+// أيقونة من مجموعة الأيقونات الموحدة (الأسماء في أول index.html)
+const ico = (name, cls = "") => `<svg class="ico ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
 
-let activeCategory = "all";
+// الشاشة الحالية: { type: "home" } | { type: "cat", id } | { type: "brand", name }  (والبحث بيعرض نتائج لوحده)
+let view = { type: "home" };
+
+/* ---------- العروض (OFFER في products.js) ---------- */
+const OFFER_CFG = typeof OFFER !== "undefined" ? OFFER : null;
+function offerActive() {
+  if (!OFFER_CFG || !OFFER_CFG.until) return false;
+  return new Date() <= new Date(OFFER_CFG.until + "T23:59:59");   // بيشمل آخر يوم
+}
+// بنطبّق نسب الخصم على المنتجات (السعر القديم بيتحط تلقائياً) طول ما العرض شغال
+function applyOffers() {
+  if (!offerActive()) return;
+  (OFFER_CFG.items || []).forEach(({ id, percent }) => {
+    const p = PRODUCTS.find((x) => x.id === id);
+    if (!p || p._offer) return;
+    p._offer = true;
+    p.oldPrice = p.price;
+    p.price = Math.round((p.price * (100 - percent)) / 100);
+    p.badge = `خصم ${percent}%`;
+  });
+}
+const offerEnd = () => {
+  const [y, m, d] = OFFER_CFG.until.split("-");
+  return `${Number(d)}/${Number(m)}`;
+};
+applyOffers();
 let searchTerm = "";
 let cart = loadCart();
 
@@ -16,7 +43,7 @@ function loadCart() {
     // نتأكد إن المنتجات لسه موجودة في القائمة وإن المقاس (لو مطلوب) لسه صحيح
     return saved.filter((i) => {
       const p = PRODUCTS.find((x) => x.id === i.id);
-      return p && p.inStock && (!hasSizes(p) || p.sizes.includes(i.size));
+      return p && p.inStock && !catHidden(p.category) && (!hasSizes(p) || p.sizes.includes(i.size));
     });
   } catch (e) {
     return [];
@@ -49,11 +76,162 @@ function setupStore() {
 }
 
 /* ---------- التصنيفات ---------- */
-function renderCategories() {
-  $("categories").innerHTML = CATEGORIES.map(
-    (c) =>
-      `<button class="cat-btn ${c.id === activeCategory ? "active" : ""}" data-cat="${c.id}">${c.icon} ${c.name}</button>`
-  ).join("");
+// تصنيف مخفي مؤقتاً (hidden: true في products.js) → هو ومنتجاته مش بيظهروا
+const catHidden = (id) => CATEGORIES.some((c) => c.id === id && c.hidden);
+
+// التصنيف الفاضي (من غير منتجات) بيختفي لوحده لحد ما تضيف له منتجات
+const visibleCats = () => CATEGORIES.filter((c) => !c.hidden && c.id !== "all" && PRODUCTS.some((p) => p.category === c.id));
+const brandOf = (p) => p.brand || p.vendor || "";
+
+function renderHome() {
+  // تصنيفات كبيرة
+  $("catGrid").innerHTML = visibleCats()
+    .map((c) => {
+      const n = PRODUCTS.filter((p) => p.category === c.id).length;
+      return `<button class="cat-tile" data-cat="${c.id}">
+        <span class="cat-ico">${ico(c.icon)}</span>
+        <span class="cat-name">${c.name}</span>
+        <span class="cat-count">${n} منتج</span>
+      </button>`;
+    })
+    .join("");
+
+  // الأكثر مبيعاً
+  const best = (typeof BEST_SELLERS !== "undefined" ? BEST_SELLERS : [])
+    .map((id) => PRODUCTS.find((p) => p.id === id))
+    .filter((p) => p && !catHidden(p.category));
+  $("bestRow").innerHTML = best.map((p) => cardHTML(p, "الأكثر مبيعاً")).join("");
+  $("bestRow").previousElementSibling.hidden = $("bestRow").hidden = !best.length;
+
+  // البراندات
+  const brands = (typeof BRANDS !== "undefined" ? BRANDS : []).filter((b) =>
+    PRODUCTS.some((p) => brandOf(p) === b.name && !catHidden(p.category))
+  );
+  $("brandRow").innerHTML = brands
+    .map(
+      (b) => `<button class="brand-tile" data-brand="${b.name}">
+        <span class="brand-logo">${b.logo ? `<img src="${b.logo}" alt="${b.name}" loading="lazy">` : ico(b.icon || "star")}</span>
+        <span class="brand-name">${b.name}</span>
+      </button>`
+    )
+    .join("");
+  $("brandRow").previousElementSibling.hidden = $("brandRow").hidden = !brands.length;
+
+  renderBanners();
+}
+
+/* ---------- الأكثر مبيعاً: بيتحرك لوحده وبيقف لما العميل يلمسه ---------- */
+let bestTimer = null, bestPaused = false;
+function startBest() {
+  clearInterval(bestTimer);
+  const row = $("bestRow");
+  if (!row || row.hidden) return;
+  if (!row.dataset.bound) {
+    row.dataset.bound = "1";
+    ["touchstart", "mouseenter"].forEach((ev) => row.addEventListener(ev, () => (bestPaused = true), { passive: true }));
+    ["touchend", "mouseleave"].forEach((ev) => row.addEventListener(ev, () => setTimeout(() => (bestPaused = false), 2500), { passive: true }));
+  }
+  bestTimer = setInterval(() => {
+    if (bestPaused || row.hidden || !row.offsetParent) return;
+    const step = (row.querySelector(".card") || {}).offsetWidth + 12 || 180;
+    const atEnd = Math.abs(row.scrollLeft) + row.clientWidth >= row.scrollWidth - 6;
+    row.scrollTo({ left: atEnd ? 0 : row.scrollLeft - step, behavior: "smooth" });   // RTL: التحرك للشمال = سالب
+  }, 3000);
+}
+
+/* ---------- البانرز ---------- */
+let bannerIdx = 0, bannerTimer = null;
+
+// بانر العروض بيتضاف أول بانر طول ما العرض شغال، وبعدها البانرز العادية من BANNERS
+function bannerList() {
+  const base = typeof BANNERS !== "undefined" ? BANNERS : [];
+  if (!offerActive()) return base;
+  return [
+    { title: OFFER_CFG.name, text: `${OFFER_CFG.tagline} · لحد ${offerEnd()}`, cta: "شوف العروض", icon: "tag", style: "orange", go: { view: "offers" } },
+    ...base
+  ];
+}
+
+function renderBanners() {
+  const list = bannerList();
+  const box = $("banners");
+  box.hidden = !list.length;
+  if (!list.length) return;
+  box.innerHTML = `
+    <div class="b-track" id="bTrack">
+      ${list
+        .map(
+          (b, i) => `<div class="b-slide ${b.style === "orange" ? "b-orange" : "b-navy"}" ${b.image ? `style="background-image:url('${b.image}')"` : ""} data-go="${i}" role="button" tabindex="0">
+            ${b.image ? "" : `<span class="b-icon">${ico(b.icon || "gift")}</span>
+            <div class="b-text"><h3>${b.title}</h3><p>${b.text || ""}</p>${b.cta ? `<span class="b-cta">${b.cta}</span>` : ""}</div>`}
+          </div>`
+        )
+        .join("")}
+    </div>
+    ${list.length > 1 ? `<div class="b-dots">${list.map((_, i) => `<button class="b-dot" data-dot="${i}" aria-label="بانر ${i + 1}"></button>`).join("")}</div>` : ""}`;
+  showBanner(0);
+  startBanners();
+  if (box.dataset.bound) return;
+  box.dataset.bound = "1";
+
+  // السحب بالصباع
+  let x0 = null;
+  box.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; stopBanners(); }, { passive: true });
+  box.addEventListener("touchend", (e) => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 40) showBanner(bannerIdx + (dx < 0 ? 1 : -1));   // RTL: سحب لليسار = التالي
+    x0 = null;
+    startBanners();
+  });
+  box.addEventListener("mouseenter", stopBanners);
+  box.addEventListener("mouseleave", startBanners);
+}
+
+function showBanner(i) {
+  const n = bannerList().length;
+  bannerIdx = (i + n) % n;
+  const tr = $("bTrack");
+  if (tr) tr.style.transform = `translateX(${bannerIdx * 100}%)`;
+  document.querySelectorAll(".b-dot").forEach((d, k) => d.classList.toggle("on", k === bannerIdx));
+}
+function startBanners() {
+  stopBanners();
+  if (bannerList().length > 1) bannerTimer = setInterval(() => showBanner(bannerIdx + 1), 4500);
+}
+function stopBanners() { clearInterval(bannerTimer); }
+
+function goBanner(i) {
+  const g = (bannerList()[i] || {}).go || {};
+  if (g.cat && g.cat !== "all") openList({ type: "cat", id: g.cat });
+  else if (g.brand) openList({ type: "brand", name: g.brand });
+  else if (g.view) openList({ type: g.view });
+  else if (g.info === "streak") openStreak();
+  else if (g.product) openProduct(g.product);
+  else if (g.coupon) {
+    appliedCoupon = null;
+    $("couponInput").value = g.coupon;
+    openDrawer();
+    if (cart.length) toggleCoupon();
+  }
+}
+
+/* ---------- التنقل بين الرئيسية والقوائم ---------- */
+function openList(v) {
+  view = v;
+  searchTerm = "";
+  $("searchInput").value = "";
+  $("searchPop").hidden = true;
+  renderProducts();
+  window.scrollTo({ top: 0 });
+}
+function goHome() {
+  view = { type: "home" };
+  searchTerm = "";
+  $("searchInput").value = "";
+  $("searchPop").hidden = true;
+  renderProducts();
+  window.scrollTo({ top: 0 });
 }
 
 /* ---------- المنتجات ---------- */
@@ -69,21 +247,11 @@ function productImage(p) {
   return `<img src="${thumb}" alt="${p.name}" loading="lazy" decoding="async"${fallback}>`;
 }
 
-function renderProducts() {
-  const term = searchTerm.trim().toLowerCase();
-  const list = PRODUCTS.filter(
-    (p) =>
-      (activeCategory === "all" || p.category === activeCategory) &&
-      (!term || p.name.toLowerCase().includes(term) || p.desc.toLowerCase().includes(term))
-  );
-
-  $("emptyMsg").hidden = list.length > 0;
-
-  $("productsGrid").innerHTML = list
-    .map(
-      (p) => `
+function cardHTML(p, badge) {
+  const b = p._offer ? p.badge : badge || p.badge;   // شارة الخصم أهم من "الأكثر مبيعاً"
+  return `
     <article class="card">
-      ${p.badge ? `<span class="badge">${p.badge}</span>` : ""}
+      ${b ? `<span class="badge">${b}</span>` : ""}
       <div class="p-img ${p.image ? "has-photo" : ""}" data-open="${p.id}">${productImage(p)}</div>
       <div class="p-body">
         <h3 class="p-name" data-open="${p.id}">${p.name}</h3>
@@ -95,20 +263,131 @@ function renderProducts() {
           ${!p.inStock ? "غير متوفر حالياً" : hasSizes(p) ? "اختار المقاس" : "أضف للسلة"}
         </button>
       </div>
-    </article>`
-    )
-    .join("");
+    </article>`;
+}
+
+function renderProducts() {
+  const term = searchTerm.trim().toLowerCase();
+  const searching = !!term;
+  const home = view.type === "home" && !searching;
+  $("homeView").hidden = !home;
+  $("listView").hidden = home;
+  document.body.classList.toggle("is-home", home);
+  updateHeader();
+  document.querySelectorAll(".nav-link").forEach((b) => b.classList.toggle("on", !home && !searching && b.dataset.view === view.type));
+  if (home) { renderHome(); startBanners(); startBest(); return; }
+  stopBanners();
+  clearInterval(bestTimer);
+
+  let list = PRODUCTS.filter((p) => !catHidden(p.category));
+  let title = "";
+  let sub = "";
+  let empty = "المنتجات هتتضاف قريباً.";
+  const byIds = (ids) => ids.map((id) => list.find((p) => p.id === id)).filter(Boolean);
+
+  if (searching) {
+    list = list.filter((p) => p.name.toLowerCase().includes(term) || p.desc.toLowerCase().includes(term));
+    title = `نتائج البحث: ${searchTerm.trim()}`;
+    empty = "مفيش منتجات مطابقة للبحث.";
+  } else if (view.type === "cat") {
+    list = list.filter((p) => p.category === view.id);
+    const c = CATEGORIES.find((x) => x.id === view.id);
+    title = c ? c.name : "";
+  } else if (view.type === "brand") {
+    list = list.filter((p) => brandOf(p) === view.name);
+    title = `البراند: ${view.name}`;
+  } else if (view.type === "offers") {
+    const on = offerActive();
+    title = OFFER_CFG ? OFFER_CFG.name : "العروض";
+    list = on ? byIds(OFFER_CFG.items.map((i) => i.id)) : [];
+    sub = on ? `${OFFER_CFG.tagline} · العروض شغالة لحد ${offerEnd()}` : "العروض خلصت، تابعنا للعروض الجاية.";
+    empty = "مفيش عروض شغالة دلوقتي.";
+  } else if (view.type === "suggest") {
+    title = "المقترحات";
+    list = byIds(typeof SUGGESTED !== "undefined" ? SUGGESTED : []);
+    sub = "اخترناها لك";
+  }
+
+  $("listTitle").textContent = title;
+  $("listSub").textContent = sub;
+  $("listSub").hidden = !sub;
+  $("emptyMsg").hidden = list.length > 0;
+  $("emptyMsg").textContent = empty;
+  $("productsGrid").innerHTML = list.map((p) => cardHTML(p)).join("");
+  // قسم أكواد الخصم في صفحة العروض متوقف (عشان يرجع: شيل // من السطر اللي تحت)
+  // renderCodes(!searching && view.type === "offers");
+}
+
+/* ---------- أكواد الخصم في صفحة العروض ---------- */
+function describeCoupon(c) {
+  const v = c.type === "percent" ? `خصم ${c.value}%` : `خصم ${c.value} ج`;
+  const min = c.minOrder ? ` على طلبات ${money(c.minOrder)} أو أكتر` : "";
+  const exp = c.expires ? ` · لحد ${Number(c.expires.split("-")[2])}/${Number(c.expires.split("-")[1])}` : "";
+  return v + min + exp;
+}
+function renderCodes(show) {
+  const box = $("codesBox");
+  const list = (typeof COUPONS !== "undefined" ? COUPONS : []).filter(
+    (c) => c.public !== false && c.active !== false && (!c.expires || new Date() <= new Date(c.expires + "T23:59:59"))
+  );
+  box.hidden = !show || !list.length;
+  if (box.hidden) return;
+  box.innerHTML =
+    `<h3 class="sec-title">أكواد الخصم</h3><div class="code-list">` +
+    list
+      .map(
+        (c) => `<div class="code-card">
+          <div><b class="code-txt">${c.code}</b><small>${describeCoupon(c)}</small></div>
+          <button type="button" class="code-btn" data-copy="${c.code}">${ico("copy")} استخدم الكود</button>
+        </div>`
+      )
+      .join("") +
+    `</div>`;
+}
+function useCode(btn) {
+  const code = btn.dataset.copy;
+  try { navigator.clipboard && navigator.clipboard.writeText(code); } catch (e) {}
+  $("couponInput").value = code;
+  if (cart.length) {
+    appliedCoupon = null;
+    openDrawer();
+    toggleCoupon();
+  } else {
+    btn.textContent = "اتنسخ، ضيف منتجات وهتلاقيه في السلة";
+    setTimeout(() => { btn.innerHTML = `${ico("copy")} استخدم الكود`; }, 2500);
+  }
+}
+
+/* ---------- الهيدر (شفاف فوق الهيرو، وبيتحول لأخضر لما تنزل) ---------- */
+function updateHeader() {
+  const atTop = document.body.classList.contains("is-home") && window.scrollY < 40 && $("searchPop").hidden;
+  $("siteHeader").classList.toggle("solid", !atTop);
+  const hint = $("scrollHint");
+  if (hint) hint.classList.toggle("gone", window.scrollY > 30);
+}
+window.addEventListener("scroll", updateHeader, { passive: true });
+
+function openSearch() {
+  $("searchPop").hidden = false;
+  updateHeader();
+  $("searchInput").focus();
+}
+function closeSearch() {
+  $("searchPop").hidden = true;
+  $("searchInput").value = "";
+  if (searchTerm) { searchTerm = ""; renderProducts(); }
+  updateHeader();
 }
 
 /* ---------- السلة ---------- */
 // نفس المنتج بمقاسين مختلفين = سطرين منفصلين في السلة
-function addToCart(id, qty = 1, size = "") {
+function addToCart(id, qty = 1, size = "", open = true) {
   const item = cart.find((i) => i.id === id && (i.size || "") === size);
   if (item) item.qty += qty;
   else cart.push({ id, qty, size });
   saveCart();
   renderCart();
-  openDrawer();
+  if (open) openDrawer();
 }
 
 function changeQty(id, size, delta) {
@@ -206,7 +485,7 @@ function renderCoupon(t) {
   input.value = appliedCoupon.code;
   const min = appliedCoupon.minOrder || 0;
   if (t.subtotal < min) showCouponMsg(`الكود هيشتغل لما المنتجات توصل ${money(min)} (ناقص ${money(min - t.subtotal)})`, "warn");
-  else showCouponMsg(`تم تطبيق الكود، وفّرت ${money(t.discount)} 🎉`, "ok");
+  else showCouponMsg(`تم تطبيق الكود، وفّرت ${money(t.discount)}`, "ok");
 }
 
 /* ---------- سلسلة الطلبات (ستريك) ---------- */
@@ -276,7 +555,7 @@ function renderStreak(t) {
   let msg;
   if (!st.rec) msg = `ابدأ سلسلتك النهاردة: كل يوم جديد تطلب فيه رسوم التوصيل بتقل، لحد ما تبقى مجانية في اليوم ${max}.`;
   else if (st.broken) msg = "السلسلة اتقطعت فبدأت من الأول. ابدأ من جديد النهاردة!";
-  else if (st.day >= max) msg = "وصلت لأعلى مستوى! التوصيل مجاني طول ما بتطلب كل يوم (أو بتفوّت يوم واحد بس) 🎉";
+  else if (st.day >= max) msg = "وصلت لأعلى مستوى! التوصيل مجاني طول ما بتطلب كل يوم (أو بتفوّت يوم واحد بس).";
   else if (st.gap === 0) msg = `طلبت النهاردة وسلسلتك على يوم ${st.day}. اطلب بكرة وهتنزل الرسوم لـ ${feeText(nextFee)}.`;
   else msg = `ده اليوم ${st.day} من سلسلتك. اطلب بكرة (أو بعده) وهتنزل الرسوم لـ ${feeText(nextFee)}.`;
 
@@ -285,10 +564,11 @@ function renderStreak(t) {
     : `طلبك لازم يوصل ${money(STREAK_CFG.minOrder)} عشان يدخل في السلسلة (ناقص ${money(STREAK_CFG.minOrder - t.subtotal)}).`;
 
   box.innerHTML = `
-    <div class="streak-title"><span>🔥 سلسلة الطلبات</span><span>يوم ${st.day} من ${max}</span></div>
+    <div class="streak-title"><span>${ico("bolt")} سلسلة الطلبات</span><span>يوم ${st.day} من ${max}</span></div>
     <div class="streak-steps">${steps}</div>
     <p class="streak-msg">${msg}</p>
-    ${warn ? `<p class="streak-msg streak-warn">${warn}</p>` : ""}`;
+    ${warn ? `<p class="streak-msg streak-warn">${warn}</p>` : ""}
+    <button type="button" class="link-btn" data-info="streak">اعرف أكتر عن السلسلة</button>`;
 }
 
 /* ---------- توصيل مجاني في مواعيد محددة (المدينة الجامعية) ---------- */
@@ -378,8 +658,8 @@ function getTotals() {
 
   let note = "";
   if (reason === "slot") note = "توصيل مجاني لأنك اخترت ميعاد من مواعيد التوصيل المجاني";
-  else if (reason === "amount") note = "التوصيل مجاني على طلبك 🎉";
-  else if (reason === "streak") note = delivery === 0 ? "التوصيل مجاني بسبب سلسلة طلباتك 🎉" : `خصم السلسلة: التوصيل ${money(delivery)} بدل ${money(base)}`;
+  else if (reason === "amount") note = "التوصيل مجاني على طلبك";
+  else if (reason === "streak") note = delivery === 0 ? "التوصيل مجاني بسبب سلسلة طلباتك" : `خصم السلسلة: التوصيل ${money(delivery)} بدل ${money(base)}`;
   else if (hasItems && STORE.freeDeliveryFrom > 0) note = `ضيف ${money(STORE.freeDeliveryFrom - subtotal)} كمان والتوصيل يبقى مجاني`;
 
   return { subtotal, discount, delivery, total: subtotal - discount + delivery, free: hasItems && delivery === 0, note, streak: st, slotText };
@@ -506,22 +786,25 @@ function openProduct(id) {
   modalSize = "";
 
   const cat = CATEGORIES.find((c) => c.id === p.category);
-  const catText = cat ? `${cat.icon} ${cat.name}` : "";
+  const catText = cat ? cat.name : "";
   $("pmCat").textContent = p.vendor ? `${catText} · من ${p.vendor}` : catText;
   $("pmName").textContent = p.name;
   $("pmPrice").textContent = money(p.price);
   $("pmOldPrice").textContent = p.oldPrice ? money(p.oldPrice) : "";
 
   const stock = $("pmStock");
-  stock.textContent = p.inStock ? "✔ متوفر" : "✖ غير متوفر حالياً";
+  stock.textContent = p.inStock ? "متوفر" : "غير متوفر حالياً";
   stock.className = "pm-stock " + (p.inStock ? "ok" : "out");
 
   renderSizes();
 
   $("pmDetails").textContent = p.details || p.desc;
-  $("pmFeatures").innerHTML = (p.features || []).map((f) => `<li>${f}</li>`).join("");
-  $("pmSpecs").innerHTML = (p.specs || []).map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("");
-  $("pmSpecs").hidden = !(p.specs && p.specs.length);
+  // مسامحين مع أخطاء الكتابة في products.js: أي مواصفة مش [اسم, قيمة] بتتجاهل بدل ما الموقع يقع
+  const features = Array.isArray(p.features) ? p.features.filter(Boolean) : [];
+  const specs = Array.isArray(p.specs) ? p.specs.filter((x) => Array.isArray(x) && x.length >= 2) : [];
+  $("pmFeatures").innerHTML = features.map((f) => `<li>${f}</li>`).join("");
+  $("pmSpecs").innerHTML = specs.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("");
+  $("pmSpecs").hidden = !specs.length;
 
   $("pmQty").textContent = modalQty;
   $("pmAdd").disabled = !p.inStock;
@@ -655,6 +938,47 @@ function buildMessage(d) {
     .join("\n");
 }
 
+/* ---------- شاشة الفتافيت قبل تأكيد الطلب ---------- */
+let fataOffered = false;      // بتظهر مرة واحدة بس لكل طلب
+let pendingData = null;
+const fataItems = () => PRODUCTS.filter((p) => p.category === "fatafeet" && p.inStock && !catHidden("fatafeet"));
+
+function fataMessage(t) {
+  const left50 = STREAK_CFG ? STREAK_CFG.minOrder - t.subtotal : 0;
+  const leftFree = STORE.freeDeliveryFrom > 0 ? STORE.freeDeliveryFrom - t.subtotal : 0;
+  if (left50 > 0)
+    return `إجمالي المنتجات ${money(t.subtotal)}. ضيف ${money(left50)} فتافيت وطلبك يوصل الحد الأدنى (${money(STREAK_CFG.minOrder)}) ويتحسب في سلسلة الطلبات`;
+  if (leftFree > 0 && leftFree <= 100)
+    return `فاضل ${money(leftFree)} بس والتوصيل يبقى مجاني`;
+  return "ضيف حاجة حلوة مع طلبك بنقرة واحدة.";
+}
+
+function renderFata() {
+  $("fataMsg").textContent = fataMessage(getTotals());
+  $("fataList").innerHTML = fataItems()
+    .map((p) => {
+      const it = cart.find((i) => i.id === p.id);
+      return `<div class="fata-row">
+        <span class="fata-emoji">${p.image ? `<img src="${thumbPath(p.image)}" alt="">` : ico("candy")}</span>
+        <div class="fata-name"><b>${p.name}</b><small>${money(p.price)}</small></div>
+        ${it
+          ? `<div class="qty"><button data-fdec="${p.id}" aria-label="تقليل">−</button><span>${it.qty}</span><button data-finc="${p.id}" aria-label="زيادة">+</button></div>`
+          : `<button class="fata-add" data-finc="${p.id}">+ أضف</button>`}
+      </div>`;
+    })
+    .join("");
+}
+
+function openFata() {
+  renderFata();
+  $("fataModal").hidden = false;
+  document.body.classList.add("no-scroll");
+}
+function closeFata() {
+  $("fataModal").hidden = true;
+  document.body.classList.remove("no-scroll");
+}
+
 function submitOrder(e) {
   e.preventDefault();
   const err = $("formError");
@@ -667,6 +991,18 @@ function submitOrder(e) {
   }
   err.hidden = true;
 
+  // قبل التأكيد: نعرض شاشة الفتافيت مرة واحدة
+  if (!fataOffered && fataItems().length) {
+    fataOffered = true;
+    pendingData = data;
+    openFata();
+    return;
+  }
+  finalizeOrder(data);
+}
+
+function finalizeOrder(data) {
+
   const t = getTotals();   // نحسبها قبل ما نفضّي السلة
   const url = `https://wa.me/${STORE.whatsapp}?text=${encodeURIComponent(buildMessage(data))}`;
   window.open(url, "_blank", "noopener");
@@ -675,6 +1011,8 @@ function submitOrder(e) {
   if (t.streak.ok) saveStreak(t.streak.day);
 
   // بعد الإرسال نفضّي السلة وكود الخصم
+  fataOffered = false;
+  pendingData = null;
   cart = [];
   saveCart();
   appliedCoupon = null;
@@ -689,6 +1027,61 @@ function submitOrder(e) {
   closeDrawer();
 }
 
+/* ---------- شرح الستريك ---------- */
+const addDays = (key, n) => {
+  const d = new Date(key + "T00:00:00");
+  d.setDate(d.getDate() + n);
+  return dateKey(d);
+};
+
+function openStreak() {
+  if (!STREAK_CFG) return;
+  const fees = STREAK_CFG.fees, max = fees.length;
+  const st = streakStatus();
+  const feeText = (f) => (f === 0 ? "مجاني" : `${f} ج`);
+  const skip = STREAK_CFG.maxGapDays - 1;
+
+  // وضع العميل الحالي
+  let you;
+  if (!st.rec) you = `لسه ماطلبتش. ابدأ النهاردة، أول يوم توصيله ${feeText(fees[0])}.`;
+  else if (st.broken) you = "سلسلتك القديمة اتقطعت. لو طلبت النهاردة هتبدأ من اليوم الأول.";
+  else {
+    const left = max - st.day;
+    const deadline = fmtDate(addDays(st.rec.lastDate, STREAK_CFG.maxGapDays));
+    you = st.gap === 0
+      ? `إنت في اليوم ${st.day} من ${max} (توصيل ${feeText(streakFee(st.day))}). `
+      : `لو طلبت النهاردة هتبقى في اليوم ${st.day} من ${max} (توصيل ${feeText(streakFee(st.day))}). `;
+    you += left > 0 ? `فاضل ${left} ${left === 1 ? "يوم" : "أيام"} على التوصيل المجاني. ` : "توصيلك مجاني. ";
+    you += `آخر ميعاد لطلبك الجاي عشان السلسلة متتقطعش: ${deadline}.`;
+  }
+
+  const rows = fees
+    .map((f, i) => {
+      const n = i + 1;
+      const cur = st.rec && !st.broken ? n === st.day : n === 1;
+      return `<div class="st-day ${cur ? "now" : ""} ${f === 0 ? "free" : ""}"><span>يوم ${n}</span><b>${feeText(f)}</b></div>`;
+    })
+    .join("");
+
+  $("streakInfo").innerHTML = `
+    <h2 id="stTitle">${ico("bolt")} ستريك كله بحسابو</h2>
+    <p class="st-lead">اطلب كل يوم وتوصيلك بيرخص يوم ورا يوم لحد ما يبقى <b>مجاني</b>.</p>
+    <div class="st-days">${rows}</div>
+    <p class="st-you">${you}</p>
+    <h3>القواعد</h3>
+    <ul class="st-rules">
+      <li>${ico("check")} الحد الأدنى للطلب <b>${money(STREAK_CFG.minOrder)}</b> (قبل الخصم) عشان اليوم يتحسب في السلسلة.</li>
+      <li>${ico("check")} ${skip > 0 ? `مسموح تفوّت <b>${skip === 1 ? "يوم واحد" : skip + " أيام"}</b> من غير ما السلسلة تتقطع.` : "لازم تطلب كل يوم عشان السلسلة تكمل."}</li>
+      <li>${ico("check")} لو فوّت أكتر من كده، السلسلة بترجع من اليوم الأول.</li>
+      <li>${ico("check")} من اليوم ${max} التوصيل <b>مجاني</b> طول ما بتكمّل.</li>
+      <li>${ico("check")} أكتر من طلب في نفس اليوم بيتحسبوا يوم واحد.</li>
+      <li>${ico("check")} السلسلة محفوظة على جهازك ومتصفحك، ولو مسحت بيانات المتصفح هتبدأ من الأول.</li>
+    </ul>
+    <button type="button" class="btn-whats" id="streakOk">تمام، يلا نطلب</button>`;
+  $("streakModal").hidden = false;
+}
+function closeStreak() { $("streakModal").hidden = true; }
+
 /* ---------- الأحداث ---------- */
 document.addEventListener("click", (e) => {
   // فتح نافذة تفاصيل المنتج (من الصورة أو الاسم أو زرار "عرض التفاصيل")
@@ -698,17 +1091,32 @@ document.addEventListener("click", (e) => {
     return;
   }
 
+  const ban = e.target.closest("[data-go]");
+  if (ban) { goBanner(Number(ban.dataset.go)); return; }
+
   const t = e.target.closest("button");
   if (!t) return;
+  if (t.dataset.info === "streak") { openStreak(); return; }
+  if (t.id === "streakOk") { closeStreak(); return; }
 
   if (t.dataset.nav) shiftModalImage(Number(t.dataset.nav));
   else if (t.dataset.thumb) {
     modalImg = Number(t.dataset.thumb);
     renderGallery();
+  } else if (t.dataset.view) {
+    openList({ type: t.dataset.view });
+  } else if (t.dataset.copy) {
+    useCode(t);
+  } else if (t.id === "scrollHint") {
+    $("homeContent").scrollIntoView({ behavior: "smooth" });
   } else if (t.dataset.cat) {
-    activeCategory = t.dataset.cat;
-    renderCategories();
-    renderProducts();
+    openList({ type: "cat", id: t.dataset.cat });
+  } else if (t.dataset.brand) {
+    openList({ type: "brand", name: t.dataset.brand });
+  } else if (t.id === "backHome") {
+    goHome();
+  } else if (t.dataset.dot) {
+    stopBanners(); showBanner(Number(t.dataset.dot)); startBanners();
   } else if (t.dataset.add) {
     const id = Number(t.dataset.add);
     const p = PRODUCTS.find((x) => x.id === id);
@@ -722,6 +1130,8 @@ document.addEventListener("click", (e) => {
 });
 
 $("openCart").addEventListener("click", openDrawer);
+$("openSearch").addEventListener("click", () => ($("searchPop").hidden ? openSearch() : closeSearch()));
+$("closeSearch").addEventListener("click", closeSearch);
 $("closeCart").addEventListener("click", closeDrawer);
 $("overlay").addEventListener("click", closeDrawer);
 $("closeProduct").addEventListener("click", closeProduct);
@@ -736,7 +1146,8 @@ $("couponInput").addEventListener("keydown", (e) => {
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
-    if (modalProduct) closeProduct();
+    if (!$("streakModal").hidden) closeStreak();
+    else if (modalProduct) closeProduct();
     else closeDrawer();
   } else if (modalProduct && e.key === "ArrowLeft") shiftModalImage(1);   // RTL: الشمال = التالي
   else if (modalProduct && e.key === "ArrowRight") shiftModalImage(-1);
@@ -744,17 +1155,34 @@ document.addEventListener("keydown", (e) => {
 
 $("searchInput").addEventListener("input", (e) => {
   searchTerm = e.target.value;
-  renderProducts();
+  renderProducts();   // لو الخانة فضيت بيرجع للرئيسية تلقائياً
 });
 
 document.querySelectorAll('input[name="pay"]').forEach((r) => r.addEventListener("change", renderPayInfo));
 $("orderForm").addEventListener("submit", submitOrder);
+$("streakClose").addEventListener("click", closeStreak);
+$("streakModal").addEventListener("click", (e) => { if (e.target === $("streakModal")) closeStreak(); });
+$("fataClose").addEventListener("click", closeFata);   // X = رجوع للسلة من غير إرسال
+$("fataModal").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (b && b.dataset.finc) { addToCart(Number(b.dataset.finc), 1, "", false); renderFata(); }
+  else if (b && b.dataset.fdec) { changeQty(Number(b.dataset.fdec), "", -1); renderFata(); }
+  else if (e.target === $("fataModal")) closeFata();
+});
+// "كمّل الطلب": بنعيد التحقق لأن السلة والإجمالي اتغيروا ممكن
+const fataContinue = () => {
+  closeFata();
+  const { errors, data } = validate();
+  if (errors.length) { $("formError").textContent = errors.join(" • "); $("formError").hidden = false; return; }
+  finalizeOrder(data);
+};
+$("fataGo").addEventListener("click", fataContinue);
+$("fataSkip").addEventListener("click", fataContinue);
 $("custArea").addEventListener("change", () => { renderSlots(); renderCart(); });
 $("custSlot").addEventListener("change", (e) => { deliverySlot = e.target.value; renderCart(); });
 
 /* ---------- تشغيل ---------- */
 setupStore();
-renderCategories();
 renderProducts();
 renderCart();
 renderPayInfo();

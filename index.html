@@ -5,15 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>كله بحسابو | Kollo - ملابس وكشاكيل وعطور ومذكرات وشنط | أسيوط</title>
   <meta name="description" content="كله بحسابو: ملابس، كشاكيل، عطور، مذكرات، نوتبوكس وشنط. توصيل لحد البيت في أسيوط.">
-  <meta name="theme-color" content="#062143">
+  <meta name="theme-color" content="#26352F">
   <link rel="icon" href="images/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+  <!-- أيقونات الموقع كلها (خطوط بسيطة بنفس اللون والسُمك). الاسم بعد # هو اللي بتكتبه في icon: -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M3 6.5h11V16H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></symbol>
+    <symbol id="i-cash" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.8"/><path d="M6 9.5v.01M18 14.5v.01"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M10.8 18.3h2.4"/></symbol>
+    <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 9l9-5 9 5"/><path d="M5.5 9.5v8M10 9.5v8M14 9.5v8M18.5 9.5v8M3 20h18"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2.4l2.2 11h10.2l2.2-8H6.4"/><circle cx="9.5" cy="19.3" r="1.4"/><circle cx="17" cy="19.3" r="1.4"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9.5L5 20v-4H4z"/></symbol>
+    <symbol id="i-candy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M8.8 9.6L4 7v10l4.8-2.6M15.2 9.6L20 7v10l-4.8-2.6"/></symbol>
+    <symbol id="i-notebook" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18M12.5 8h3.5M12.5 12h3.5"/></symbol>
+    <symbol id="i-planner" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-perfume" viewBox="0 0 24 24"><rect x="6" y="10" width="12" height="11" rx="2.2"/><path d="M9.5 10V6.5h5V10M10.5 3h3v3.5h-3z"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/><path d="M9.5 13.5h5M9 4V6M15 4V6"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8.5 3L3 6l2 4 3-1v12h8V9l3 1 2-4-5.5-3a3.5 3.5 0 0 1-7 0z"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z"/><path d="M9.5 14.5a2.6 2.6 0 0 0 2.4 2.5"/></symbol>
+    <symbol id="i-spray" viewBox="0 0 24 24"><path d="M8 10h7v10a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1z"/><path d="M9.5 10V7h4v3M9.5 7l3-3h4"/><path d="M19 5.5h1.5M19 8h1.5M18.5 3h1.5"/></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16v4M17 18h4"/></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4.5" rx="1"/><path d="M5 12.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7.5M12 8v13"/><path d="M12 8C9.5 8 8 6.8 8 5.5S9 3.5 10.2 3.5C11.6 3.5 12 6 12 8zm0 0c2.5 0 4-1.2 4-2.5s-1-2-2.2-2C12.4 3.5 12 6 12 8z"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12.2V4h8.2L21 13.8 13.8 21z"/><circle cx="7.6" cy="8.6" r="1.3"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9l-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.01"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+    <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 4v15M6 13.5l6 6 6-6"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  </svg>
+
 
   <!-- صفحة "قريباً": بتظهر بس لما STORE.comingSoon = true في products.js -->
   <main class="soon">
@@ -25,48 +56,91 @@
   <script src="products.js"></script>
   <script>if (typeof STORE !== "undefined" && STORE.comingSoon) document.documentElement.classList.add("coming-soon");</script>
 
-  <header class="header">
+  <header class="header" id="siteHeader">
     <div class="container header-inner">
-      <a href="#top" class="logo" aria-label="كله بحسابو"><img src="images/logo.png" alt="كله بحسابو - Kollo" id="logoImg" width="123" height="42"></a>
-      <input type="search" id="searchInput" class="search" placeholder="ابحث عن منتج..." aria-label="بحث">
-      <button class="cart-btn" id="openCart" aria-label="فتح السلة">
-        🛒 <span>السلة</span>
-        <span class="cart-count" id="cartCount">0</span>
-      </button>
+      <a href="#top" class="logo" aria-label="كله بحسابو"><img src="images/logo-light.png" alt="كله بحسابو - Kollo" id="logoImg" width="123" height="42"></a>
+      <nav class="nav-words" aria-label="الأقسام">
+        <button type="button" class="nav-link" data-view="offers">العروض</button>
+        <button type="button" class="nav-link" data-view="suggest">المقترحات</button>
+      </nav>
+      <div class="head-actions">
+        <button type="button" class="icon-act" id="openSearch" aria-label="بحث"><svg class="ico"><use href="#i-search"/></svg></button>
+        <button type="button" class="icon-act" id="openCart" aria-label="فتح السلة">
+          <svg class="ico"><use href="#i-cart"/></svg>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+    <div class="search-pop" id="searchPop" hidden>
+      <div class="container search-row">
+        <input type="search" id="searchInput" class="search" placeholder="ابحث عن منتج..." aria-label="بحث" autocomplete="off">
+        <button type="button" class="icon-act" id="closeSearch" aria-label="إغلاق البحث"><svg class="ico"><use href="#i-close"/></svg></button>
+      </div>
     </div>
   </header>
 
   <main id="top">
-    <section class="intro">
-      <div class="container">
-        <h1>كل اللي محتاجه في مكان واحد</h1>
-        <p>اطلب وإحنا نوصّلك لحد البيت في <span id="cityName">أسيوط</span>.</p>
-        <ul class="perks">
-          <li>🚚 توصيل للبيت</li>
-          <li>🔥 كل ما تطلب كل يوم التوصيل بيقل لحد ما يبقى مجاني</li>
-          <li>💵 كاش عند الاستلام</li>
-          <li>📱 محافظ + InstaPay</li>
-        </ul>
-      </div>
-    </section>
+    <h1 class="sr-only">كله بحسابو - وقتك غالي... سيب علينا مشاويرك</h1>
 
-    <section class="container">
-      <div class="categories" id="categories"></div>
+    <!-- الصفحة الرئيسية -->
+    <div id="homeView">
+      <section class="hero" id="hero">
+        <div class="hero-inner container">
+          <h2 class="hero-title">وقتك غالي... سيب علينا مشاويرك.</h2>
+          <span class="hero-line" aria-hidden="true"></span>
+          <p class="hero-text">هدفنا ندعم الطلبة المغتربة وأهل أسيوط من التجار الاستغلاليين ونقدم خدمة عادلة، بس كل ده مش هيتم غير بدعمكم لينا وبحبكم.</p>
+        </div>
+      </section>
+
+      <section class="container home-content" id="homeContent">
+        <div class="banners" id="banners" aria-label="أفضل العروض"></div>
+        <ul class="perks">
+          <li><svg class="ico"><use href="#i-truck"/></svg> توصيل للبيت في <span id="cityName">أسيوط</span></li>
+          <li><svg class="ico"><use href="#i-bolt"/></svg> <span>كل يوم تطلب فيه التوصيل بيرخص لحد ما يبقى مجاني</span> <button type="button" class="link-btn" data-info="streak">اعرف أكتر</button></li>
+          <li><svg class="ico"><use href="#i-cash"/></svg> كاش عند الاستلام</li>
+          <li><svg class="ico"><use href="#i-phone"/></svg> محافظ + InstaPay</li>
+        </ul>
+
+        <h2 class="sec-title">التصنيفات</h2>
+        <div class="cat-grid" id="catGrid"></div>
+
+        <h2 class="sec-title"><svg class="ico"><use href="#i-star"/></svg> الأكثر مبيعاً</h2>
+        <div class="hscroll" id="bestRow"></div>
+
+        <h2 class="sec-title">تسوق بالبراند</h2>
+        <div class="brand-row" id="brandRow"></div>
+      </section>
+    </div>
+
+    <!-- صفحة منتجات تصنيف / براند / عروض / مقترحات / نتائج بحث -->
+    <section class="container" id="listView" hidden>
+      <div class="list-head">
+        <button type="button" class="back-btn" id="backHome">→ الرئيسية</button>
+        <h2 id="listTitle"></h2>
+      </div>
+      <p class="list-sub" id="listSub" hidden></p>
       <div class="grid" id="productsGrid"></div>
-      <p class="empty" id="emptyMsg" hidden>مفيش منتجات مطابقة للبحث.</p>
+      <p class="empty" id="emptyMsg" hidden></p>
+      <div class="codes" id="codesBox" hidden></div>
     </section>
   </main>
 
+  <!-- زرار عائم: ينزّل العميل لتحت (بيختفي أول ما ينزل) -->
+  <button type="button" class="scroll-hint" id="scrollHint" aria-label="اسحب لتحت لعرض المنتجات">
+    <span>اسحب لتحت</span>
+    <svg class="ico"><use href="#i-arrow-down"/></svg>
+  </button>
+
   <footer class="footer">
     <div class="container">
-      <img src="images/logo.png" alt="كله بحسابو - Kollo" loading="lazy" width="100" height="34">
+      <img src="images/logo-light.png" alt="كله بحسابو - Kollo" loading="lazy" width="100" height="34">
       <p>ساعات العمل: <span id="workingHours"></span></p>
       <p>للطلب والاستفسار: <a id="footerWhats" href="#" target="_blank" rel="noopener">واتساب</a></p>
     </div>
   </footer>
 
   <!-- زر واتساب عائم -->
-  <a class="float-whats" id="floatWhats" href="#" target="_blank" rel="noopener" aria-label="واتساب">💬</a>
+  <a class="float-whats" id="floatWhats" href="#" target="_blank" rel="noopener" aria-label="واتساب"><svg class="ico"><use href="#i-chat"/></svg></a>
 
   <!-- السلة (درج جانبي) -->
   <div class="overlay" id="overlay" hidden></div>
@@ -118,7 +192,7 @@
             <label>موعد التوصيل
               <select id="custSlot"></select>
             </label>
-            <p class="slot-hint">🎓 اختار ميعاد من المواعيد دي وتوصيلك يبقى مجاني. لو مستعجل اختار "أقرب وقت".</p>
+            <p class="slot-hint"><svg class="ico"><use href="#i-clock"/></svg> اختار ميعاد من المواعيد دي وتوصيلك يبقى مجاني. لو مستعجل اختار "أقرب وقت".</p>
           </div>
 
           <label>العنوان بالتفصيل
@@ -131,9 +205,9 @@
 
           <h3>طريقة الدفع</h3>
           <div class="pay-options">
-            <label class="pay"><input type="radio" name="pay" value="cash" checked> 💵 كاش عند الاستلام</label>
-            <label class="pay"><input type="radio" name="pay" value="wallet"> 📱 محفظة إلكترونية</label>
-            <label class="pay"><input type="radio" name="pay" value="instapay"> 🏦 InstaPay</label>
+            <label class="pay"><input type="radio" name="pay" value="cash" checked> <svg class="ico"><use href="#i-cash"/></svg> كاش عند الاستلام</label>
+            <label class="pay"><input type="radio" name="pay" value="wallet"> <svg class="ico"><use href="#i-phone"/></svg> محفظة إلكترونية</label>
+            <label class="pay"><input type="radio" name="pay" value="instapay"> <svg class="ico"><use href="#i-bank"/></svg> InstaPay</label>
           </div>
           <div class="pay-info" id="payInfo" hidden></div>
 
@@ -179,6 +253,28 @@
             <button type="button" class="add-btn pm-add" id="pmAdd">أضف للسلة</button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- شرح الستريك -->
+  <div class="modal" id="streakModal" hidden>
+    <div class="modal-box streak-box" role="dialog" aria-modal="true" aria-labelledby="stTitle">
+      <button class="icon-btn modal-close" id="streakClose" aria-label="إغلاق">✕</button>
+      <div id="streakInfo"></div>
+    </div>
+  </div>
+
+  <!-- شاشة الفتافيت قبل تأكيد الطلب -->
+  <div class="modal" id="fataModal" hidden>
+    <div class="modal-box fata-box" role="dialog" aria-modal="true" aria-labelledby="fataTitle">
+      <button class="icon-btn modal-close" id="fataClose" aria-label="إغلاق">✕</button>
+      <h2 id="fataTitle">مش عايز تجيب حاجة من الفتافيت؟</h2>
+      <p class="fata-msg" id="fataMsg"></p>
+      <div id="fataList"></div>
+      <div class="fata-actions">
+        <button type="button" class="btn-whats" id="fataGo">كمّل الطلب</button>
+        <button type="button" class="fata-skip" id="fataSkip">لأ شكراً، كمّل الطلب</button>
       </div>
     </div>
   </div>
