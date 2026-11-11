@@ -561,9 +561,22 @@ body.is-home .scroll-hint { display: flex; }
 }
 
 .soon-subtitle {
-  margin-bottom: 22px;
+  margin-bottom: 18px;
   color: var(--muted);
   font-size: .98rem;
+}
+
+.soon-note {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(244,123,53,.12);
+  border: 1px solid rgba(244,123,53,.2);
+  color: var(--primary);
+  font-size: .82rem;
+  font-weight: 700;
+  line-height: 1.6;
+  text-align: center;
 }
 
 .soon-form {
