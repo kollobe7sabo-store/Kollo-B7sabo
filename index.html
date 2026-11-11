@@ -43,6 +43,8 @@
     <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".7"/></symbol>
+    <symbol id="i-facebook" viewBox="0 0 24 24"><path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.6 1.6-1.6h1.7V3.8c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H7.3v3h2.8v8z"/></symbol>
   </svg>
 
 
@@ -73,6 +75,10 @@
 
         <button type="submit" class="soon-btn">إرسال</button>
       </form>
+      <nav class="social-links" aria-label="صفحات التواصل الاجتماعي">
+        <a class="social-link" data-social="instagram" href="#" target="_blank" rel="noopener noreferrer" aria-label="صفحة إنستجرام"><svg class="ico"><use href="#i-instagram"/></svg></a>
+        <a class="social-link" data-social="facebook" href="#" target="_blank" rel="noopener noreferrer" aria-label="صفحة فيسبوك"><svg class="ico"><use href="#i-facebook"/></svg></a>
+      </nav>
     </div>
   </main>
 
@@ -91,7 +97,6 @@
           const city = document.getElementById("soonCity").value.trim();
           const phoneRaw = (document.getElementById("soonPhone").value || "").replace(/[\s-]/g, "");
           const phone = phoneRaw.replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
-          const code = "KOLLO10";
 
           if (!name || !city || !/^01[0125]\d{8}$/.test(phone)) {
             alert("من فضلك املأ الاسم، مكان التوصيل، ورقم واتساب صحيح.");
@@ -103,8 +108,7 @@
             "",
             `اسم العميل: ${name}`,
             `مكان التوصيل: ${city}`,
-            `رقم الواتساب: ${phone}`,
-            `كود الخصم المخصص: ${code}`
+            `رقم الواتساب: ${phone}`
           ].join("\n");
 
           window.open(`https://wa.me/${STORE.whatsapp}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
@@ -193,6 +197,10 @@
       <img src="images/logo-light.png" alt="كله بحسابو - Kollo" loading="lazy" width="100" height="34">
       <p>ساعات العمل: <span id="workingHours"></span></p>
       <p>للطلب والاستفسار: <a id="footerWhats" href="#" target="_blank" rel="noopener">واتساب</a></p>
+      <nav class="social-links" aria-label="صفحات التواصل الاجتماعي">
+        <a class="social-link" data-social="instagram" href="#" target="_blank" rel="noopener noreferrer" aria-label="صفحة إنستجرام"><svg class="ico"><use href="#i-instagram"/></svg></a>
+        <a class="social-link" data-social="facebook" href="#" target="_blank" rel="noopener noreferrer" aria-label="صفحة فيسبوك"><svg class="ico"><use href="#i-facebook"/></svg></a>
+      </nav>
     </div>
   </footer>
 

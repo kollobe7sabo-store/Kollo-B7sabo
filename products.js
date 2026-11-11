@@ -7,6 +7,8 @@ const STORE = {
   comingSoon: true,                // true = الموقع كله بيعرض صفحة "قريباً" بس. يوم الافتتاح اكتب false
   name: "كله بحسابو",               // اسم الستور (Kollo)
   whatsapp: "201507656275",        // الرقم بالصيغة الدولية من غير + ولا صفر
+  instagram: "https://www.instagram.com/kollobe7saboo?cplk=Y3FvcXRwY3o4dWFu",                   // حط لينك صفحة إنستجرام هنا بين علامتي التنصيص
+  facebook: "https://www.facebook.com/share/1HofaqrNYK/",                    // حط لينك صفحة فيسبوك هنا بين علامتي التنصيص
   city: "أسيوط",
   deliveryFee: 20,                 // رسوم التوصيل العادية بالجنيه (هي كمان رسوم اليوم الأول في سلسلة الطلبات)
   freeDeliveryFrom: 500,           // التوصيل مجاني لو الطلب وصل للمبلغ ده (0 = مفيش توصيل مجاني)

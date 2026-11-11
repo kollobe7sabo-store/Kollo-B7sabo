@@ -69,6 +69,11 @@ function setupStore() {
   const link = `https://wa.me/${STORE.whatsapp}`;
   $("floatWhats").href = link;
   $("footerWhats").href = link;
+  document.querySelectorAll("[data-social]").forEach((anchor) => {
+    const url = STORE[anchor.dataset.social];
+    anchor.href = url || "#";
+    anchor.hidden = !url;
+  });
 
   $("custArea").innerHTML =
     `<option value="">اختار المنطقة</option>` +
