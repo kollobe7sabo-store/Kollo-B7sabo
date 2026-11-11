@@ -4,7 +4,7 @@
 // ============================================================
 
 const STORE = {
-  comingSoon: false,               // true = الموقع كله بيعرض صفحة "قريباً" بس. يوم الافتتاح اكتب false
+  comingSoon: true,                // true = الموقع كله بيعرض صفحة "قريباً" بس. يوم الافتتاح اكتب false
   name: "كله بحسابو",               // اسم الستور (Kollo)
   whatsapp: "01507656275",        // الرقم بالصيغة الدولية من غير + ولا صفر
   city: "أسيوط",
@@ -61,7 +61,7 @@ const CATEGORIES = [
 const PRODUCTS = [
   {
     id: 11, category: "clothes", vendor: "العبدلله", sizes: ["M", "L", "XL", "XXL"], name: "هودي أسود بطبعة سلوجان",
-    price: 450, oldPrice: 0, emoji: "🧥", image: "images/hoodie-slogan-black.jpg", images: ["images/hoodie-slogan-black.jpg"], badge: "", inStock: true,
+    price: 550, oldPrice: 0, emoji: "🧥", image: "images/hoodie-slogan-black.jpg", images: ["images/hoodie-slogan-black.jpg"], badge: "", inStock: true,
     desc: "هودي أسود بطبعة جريئة على الصدر وجيب كنغر أمامي.",
     details: "هودي أسود بكابوشون وطبعة سلوجان إنجليزي بألوان الأبيض والأخضر مع رسمة سيفين متقاطعين على الصدر. قصة واسعة مريحة ومناسبة لجو الشتا واللبس اليومي.",
     features: ["كابوشون بخيوط ربط", "طبعة سلوجان على الصدر", "جيب كنغر أمامي", "أساور ريب عند الأكمام والوسط"],
@@ -69,7 +69,7 @@ const PRODUCTS = [
   },
   {
     id: 12, category: "clothes", vendor: "العبدلله", sizes: ["M", "L", "XL", "XXL"], name: "هودي رمادي فاتح بطبعة سلوجان",
-    price: 450, oldPrice: 0, emoji: "🧥", image: "images/hoodie-slogan-gray.jpg", images: ["images/hoodie-slogan-gray.jpg"], badge: "", inStock: true,
+    price: 550, oldPrice: 0, emoji: "🧥", image: "images/hoodie-slogan-gray.jpg", images: ["images/hoodie-slogan-gray.jpg"], badge: "", inStock: true,
     desc: "نفس تصميم السلوجان بلون رمادي فاتح هادي وعملي.",
     details: "هودي رمادي فاتح بنفس طبعة السلوجان والسيفين المتقاطعين، بس بألوان البني والأسود. لون هادي بيمشي مع أي حاجة وبيناسب الخروج والجامعة.",
     features: ["كابوشون بخيوط ربط", "طبعة سلوجان على الصدر", "جيب كنغر أمامي", "أساور ريب عند الأكمام والوسط"],
@@ -77,7 +77,7 @@ const PRODUCTS = [
   },
   {
     id: 13, category: "clothes", vendor: "العبدلله", sizes: ["M", "L", "XL", "XXL"], name: "هودي أسود بتطريز على الصدر",
-    price: 520, oldPrice: 580, emoji: "🧥", image: "images/hoodie-embroidered-black.jpg", images: ["images/hoodie-embroidered-black.jpg"], badge: "خصم", inStock: true,
+    price: 500, oldPrice: 580, emoji: "🧥", image: "images/hoodie-embroidered-black.jpg", images: ["images/hoodie-embroidered-black.jpg"], badge: "خصم", inStock: true,
     desc: "هودي أسود كلاسيك بتطريز أبيض وأحمر على الصدر.",
     details: "هودي أسود بقصة واسعة وتطريز بارز على الصدر بالأبيض والأحمر مع شريط ملوّن صغير. بسيط وأنيق ومناسب لكل يوم.",
     features: ["تطريز على الصدر", "كابوشون بخيوط ربط بأطراف معدن", "جيب كنغر أمامي", "قصة واسعة مريحة"],
@@ -85,7 +85,7 @@ const PRODUCTS = [
   },
   {
     id: 14, category: "clothes", vendor: "العبدلله", sizes: ["M", "L", "XL", "XXL"], name: "هودي أخضر بترولي بطبعة",
-    price: 480, oldPrice: 0, emoji: "🧥", image: "images/hoodie-print-teal.jpg", images: ["images/hoodie-print-teal.jpg"], badge: "", inStock: true,
+    price: 550, oldPrice: 0, emoji: "🧥", image: "images/hoodie-print-teal.jpg", images: ["images/hoodie-print-teal.jpg"], badge: "", inStock: true,
     desc: "لون أخضر بترولي مميز وطبعة بيضاء فنية في النص.",
     details: "هودي بلون أخضر بترولي غامق وطبعة بيضاء بتصميم فني (إيدين وعين) في منتصف الصدر. بطانة داخلية ناعمة في الكابوشون ولون مختلف عن الأسود المعتاد.",
     features: ["لون أخضر بترولي مميز", "طبعة بيضاء في منتصف الصدر", "جيب كنغر أمامي", "أساور ريب عند الأكمام والوسط"],
@@ -93,7 +93,7 @@ const PRODUCTS = [
   },
   {
     id: 15, category: "clothes", vendor: "العبدلله", sizes: ["M", "L", "XL", "XXL"], name: "هودي أحمر بطبعة",
-    price: 480, oldPrice: 0, emoji: "🧥", image: "images/hoodie-print-red.jpg", images: ["images/hoodie-print-red.jpg"], badge: "جديد", inStock: true,
+    price: 550, oldPrice: 0, emoji: "🧥", image: "images/hoodie-print-red.jpg", images: ["images/hoodie-print-red.jpg"], badge: "جديد", inStock: true,
     desc: "هودي أحمر لافت بطبعة سودا في منتصف الصدر.",
     details: "هودي أحمر زاهي بطبعة سودا بتصميم فني (إيدين وعين) في منتصف الصدر. لون جريء للي بيحب يبان.",
     features: ["لون أحمر لافت", "طبعة سودا في منتصف الصدر", "جيب كنغر أمامي", "كابوشون بخيوط ربط سودا"],
@@ -117,7 +117,7 @@ const PRODUCTS = [
   },
   {
     id: 18, category: "clothes", vendor: "العبدلله", sizes: ["30", "32", "34", "36", "38"], name: "جينز أسود بحزام حبل",
-    price: 550, oldPrice: 0, emoji: "👖", image: "images/jeans-rope-black.jpg", images: ["images/jeans-rope-black.jpg"], badge: "", inStock: true,
+    price: 750, oldPrice: 0, emoji: "👖", image: "images/jeans-rope-black.jpg", images: ["images/jeans-rope-black.jpg"], badge: "", inStock: true,
     desc: "جينز أسود غامق بغسلة خفيفة وحزام حبل ملوّن.",
     details: "جينز أسود غامق بغسلة خفيفة وقصة مريحة. الإغلاق بأزرار ظاهرة في المقدمة وحزام حبل بلونين (بيج وبني) بيدّي شكل عصري مميز.",
     features: ["إغلاق بأزرار ظاهرة", "حزام حبل بلونين بيج وبني", "خياطة بارزة بخيط فاتح", "جيوب أمامية وجيب صغير"],
@@ -125,7 +125,7 @@ const PRODUCTS = [
   },
   {
     id: 19, category: "clothes", vendor: "العبدلله", sizes: ["30", "32", "34", "36", "38"], name: "جينز أزرق بحزام حبل بشراشيب",
-    price: 550, oldPrice: 0, emoji: "👖", image: "images/jeans-rope-blue.jpg", images: ["images/jeans-rope-blue.jpg"], badge: "", inStock: true,
+    price: 750, oldPrice: 0, emoji: "👖", image: "images/jeans-rope-blue.jpg", images: ["images/jeans-rope-blue.jpg"], badge: "", inStock: true,
     desc: "جينز أزرق بغسلة كلاسيك وحزام حبل بشراشيب.",
     details: "جينز أزرق بغسلة كلاسيك وقصة مستقيمة مريحة، بأزرار ظاهرة في المقدمة وحزام حبل بيج وبني بشراشيب في الأطراف.",
     features: ["إغلاق بأزرار ظاهرة", "حزام حبل بيج وبني بشراشيب", "خياطة بخيط برتقالي", "جيوب أمامية وجيب صغير"],
@@ -133,7 +133,7 @@ const PRODUCTS = [
   },
   {
     id: 20, category: "clothes", vendor: "العبدلله", sizes: ["30", "32", "34", "36", "38"], name: "جينز أزرق مستقيم كلاسيك",
-    price: 480, oldPrice: 0, emoji: "👖", image: "images/jeans-straight-blue.jpg", images: ["images/jeans-straight-blue.jpg"], badge: "", inStock: true,
+    price: 750, oldPrice: 0, emoji: "👖", image: "images/jeans-straight-blue.jpg", images: ["images/jeans-straight-blue.jpg"], badge: "", inStock: true,
     desc: "جينز أزرق كحلي بقصة مستقيمة مريحة للاستخدام اليومي.",
     details: "جينز أزرق كحلي بقصة مستقيمة مريحة وشكل كلاسيك بيمشي مع التيشيرتات والهوديز والقمصان. بخياطة واضحة وجيوب عملية.",
     features: ["قصة مستقيمة مريحة", "لون أزرق كحلي كلاسيك", "جيوب أمامية وجيب صغير", "مناسب للاستخدام اليومي"],
@@ -309,7 +309,7 @@ const PRODUCTS = [
   },
   {
     id: 42, category: "beauty", brand: "My Way", name: "غسول جسم باليوريا - Simply Moist",
-    price: 100, oldPrice: 0, emoji: "🌸", image: "images/simply-moist.jpg", images: ["images/simply-moist.jpg"], badge: "", inStock: true,
+    price: 140, oldPrice: 0, emoji: "🌸", image: "images/simply-moist.jpg", images: ["images/simply-moist.jpg"], badge: "", inStock: true,
     desc: "غسول للجسم بتركيز 5% يوريا لترطيب مكثف.",
     details: "غسول جسم Simply Moist بتركيبة غنية بـ 5% يوريا، بيدّي ترطيب مكثف وبيحسّن مظهر جلد الوزّة.",
     features: ["5% يوريا", "ترطيب مكثف", "يحسّن مظهر جلد الوزّة"],
@@ -413,7 +413,7 @@ const PRODUCTS = [
   },
   {
     id: 58, category: "cleaning", brand: "My Way", name: "غسول الصحون بالليمون - Clean",
-    price: 120, oldPrice: 0, emoji: "🍋", image: "images/clean-dish.jpg", images: ["images/clean-dish.jpg"], badge: "", inStock: true,
+    price: 140, oldPrice: 0, emoji: "🍋", image: "images/clean-dish.jpg", images: ["images/clean-dish.jpg"], badge: "", inStock: true,
     desc: "سائل غسيل الصحون برائحة الليمون.",
     details: "Clean سائل غسيل الصحون بلمعة الليمون، فعال على الدهون وجميع الأواني.",
     features: ["برائحة الليمون", "يزيل الدهون", "فعال على جميع الأواني"],
@@ -608,7 +608,7 @@ const BANNERS = [
 // ============================================================
 //  الأكثر مبيعاً (الصف المتحرك تحت التصنيفات): اكتب أرقام (id) المنتجات بالترتيب
 // ============================================================
-const BEST_SELLERS = [23, 30, 24, 31, 35, 37, 41, 12];
+const BEST_SELLERS = [58, 30, 24, 31, 35, 37, 41, 12];
 
 // ============================================================
 //  تسوق بالبراند: name لازم يطابق brand في المنتج (أو vendor للملابس)
@@ -745,10 +745,8 @@ const OFFER = {
   tagline: "خصومات تصل إلى 70%",
   until: "2026-11-11",
   items: [
-    { id: 30, percent: 70 },
-    { id: 39, percent: 50 },
-    { id: 26, percent: 40 },
-    { id: 12, percent: 35 },
+    { id: 42, percent: 70 },
+    { id: 58, percent: 50 },
     { id: 37, percent: 30 },
     { id: 24, percent: 25 }
   ]

@@ -382,7 +382,7 @@ form input:focus, form select:focus, form textarea:focus { outline: 2px solid va
 
 
 /* ============================================================
-   الثيم: عاجي وأبيض (60%) · أخضر غامق (25%) · برتقالي (15%)
+   اثيم: عاجي وأبيض (60%) · أخضر غامق (25%) · برتقالي (15%)ل
    ============================================================ */
 body { background: var(--bg); color: var(--text); font-weight: 500; }
 h1, h2, h3 { font-weight: 700; }
@@ -523,11 +523,84 @@ body.is-home .scroll-hint { display: flex; }
 /* ===== صفحة "قريباً" (بتشتغل لما STORE.comingSoon = true) ===== */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .soon { display: none; }
-.coming-soon, .coming-soon body { background: #072144; overflow: hidden; height: 100%; }
-.coming-soon body > *:not(.soon):not(script) { display: none !important; }   /* الستور كله مخفي */
+.coming-soon, .coming-soon body { background: var(--bg); overflow: hidden; height: 100%; }
+.coming-soon body > *:not(.soon):not(script) { display: none !important; }
 .coming-soon .soon {
   position: fixed; inset: 0; display: grid; place-items: center;
-  background: #072144; overflow: hidden;
+  padding: 18px; background: linear-gradient(135deg, #f7f5f0 0%, #f1eee7 100%);
+  overflow: hidden;
 }
-.soon-text { width: clamp(270px, 62vw, 640px); height: auto; }
-.soon-corner { position: absolute; top: 0; right: -2px; width: clamp(110px, 17vw, 330px); height: auto; }
+
+.soon-card {
+  width: min(460px, 100%);
+  background: rgba(255,255,255,.88);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  border-radius: 22px;
+  padding: 30px 22px;
+  box-shadow: 0 18px 45px rgba(38,53,47,.12);
+  color: var(--primary);
+}
+
+.soon-tag {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(244,123,53,.12);
+  color: var(--accent-dark);
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+
+.soon-card h1 {
+  margin: 0 0 8px;
+  font-size: clamp(2rem, 6vw, 2.8rem);
+  line-height: 1.2;
+  color: var(--primary);
+}
+
+.soon-subtitle {
+  margin-bottom: 22px;
+  color: var(--muted);
+  font-size: .98rem;
+}
+
+.soon-form {
+  display: grid;
+  gap: 16px;
+}
+
+.soon-form label {
+  display: grid;
+  gap: 8px;
+  font-size: .92rem;
+  color: var(--primary);
+}
+
+.soon-form input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--text);
+  padding: 12px 14px;
+  font: inherit;
+}
+
+.soon-form input::placeholder { color: rgba(38,53,47,.5); }
+.soon-form input:focus { outline: 2px solid rgba(244,123,53,.9); border-color: transparent; }
+
+.soon-btn {
+  margin-top: 6px;
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: var(--primary);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.soon-btn:hover { background: var(--primary-dark); }

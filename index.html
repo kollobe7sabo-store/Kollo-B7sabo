@@ -48,13 +48,68 @@
 
   <!-- صفحة "قريباً": بتظهر بس لما STORE.comingSoon = true في products.js -->
   <main class="soon">
-    <h1 class="sr-only">كله بحسابو - قريباً</h1>
-    <img class="soon-corner" src="images/soon-corner.jpg" alt="" width="600" height="559">
-    <img class="soon-text" src="images/soon-text.png" alt="قريباً - Coming Soon" width="1000" height="746">
+    <div class="soon-card">
+      <p class="soon-tag">قريباً</p>
+      <h1>سجل الآن</h1>
+      <p class="soon-subtitle">هتتواصل معاك فور فتح المتجر وهنبعت لك كود خصم</p>
+
+      <form id="comingSoonForm" class="soon-form" novalidate>
+        <label>
+          <span>اسمك</span>
+          <input type="text" id="soonName" name="name" placeholder="اكتب اسمك" required>
+        </label>
+
+        <label>
+          <span>مكان التوصيل</span>
+          <input type="text" id="soonCity" name="city" placeholder="مثال: وسط البلد / المدينة الجامعية" required>
+        </label>
+
+        <label>
+          <span>رقم الواتساب</span>
+          <input type="tel" id="soonPhone" name="phone" placeholder="01xxxxxxxxx" inputmode="tel" required>
+        </label>
+
+        <button type="submit" class="soon-btn">إرسال</button>
+      </form>
+    </div>
   </main>
 
   <script src="products.js"></script>
-  <script>if (typeof STORE !== "undefined" && STORE.comingSoon) document.documentElement.classList.add("coming-soon");</script>
+  <script>
+    if (typeof STORE !== "undefined" && STORE.comingSoon) {
+      document.documentElement.classList.add("coming-soon");
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("comingSoonForm");
+        if (!form) return;
+
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+
+          const name = document.getElementById("soonName").value.trim();
+          const city = document.getElementById("soonCity").value.trim();
+          const phoneRaw = (document.getElementById("soonPhone").value || "").replace(/[\s-]/g, "");
+          const phone = phoneRaw.replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+          const code = "KOLLO10";
+
+          if (!name || !city || !/^01[0125]\d{8}$/.test(phone)) {
+            alert("من فضلك املأ الاسم، مكان التوصيل، ورقم واتساب صحيح.");
+            return;
+          }
+
+          const message = [
+            "طلب جديد من صفحة القريباً ✅",
+            "",
+            `اسم العميل: ${name}`,
+            `مكان التوصيل: ${city}`,
+            `رقم الواتساب: ${phone}`,
+            `كود الخصم المخصص: ${code}`
+          ].join("\n");
+
+          window.open(`https://wa.me/${STORE.whatsapp}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
+        });
+      });
+    }
+  </script>
 
   <header class="header" id="siteHeader">
     <div class="container header-inner">
